@@ -17,39 +17,49 @@ export type DestinationConfig =
 export type PluginPayloadType = UAPayload | TikTokPayload
 
 export abstract class DestinationPlugin {
-  protected readonly context: Context
-  protected readonly config: DestinationConfig
-  protected readonly pluginType: 'UA' | 'TikTok'
+  protected readonly pluginType: 'ua' | 'tiktok'
   protected abstract eventMap: Partial<Record<DataLayerEventName, ConfigEventKey>>
 
-  constructor(context: Context, type: 'UA' | 'TikTok') {
-    this.context = context
+  constructor(type: 'ua' | 'tiktok') {
     this.pluginType = type
-    if (this.pluginType === 'UA') this.config = context?.config?.ua
-    if (this.pluginType === 'TikTok') this.config = context?.config?.tiktok
   }
 
-  abstract processEvent(): Promise<void>
+  abstract processEvent(context: Context): Promise<void>
 
-  protected shouldProcessEvent(): boolean {
-    const isEnabled = Boolean(this.config && this.config?.live)
+  protected shouldProcessEvent(context: Context): boolean {
+    let config = context.config[this.pluginType]
+    const isEnabled = Boolean(context?.config && config?.live)
     if (!isEnabled) return false
 
-    if (this.pluginType === 'UA' && !(this.config as UAEventsConnectorConfig)?.measurementId)
+    if (this.pluginType === 'ua' && !(config as UAEventsConnectorConfig)?.measurementId)
       return false
 
-    const eventName = this.eventMap[this.context?.message?.event_name]
-    if (!eventName) return false
+    const eventName = this.eventMap[context?.message?.event_name] || null
+    if (!eventName) {
+      console.log(
+        `Event type "${context?.message?.event_name}" not supported for "${this.pluginType} plugin"`,
+      )
+      return false
+    }
 
-    const shouldProcessEvent = !!this.config?.enabledEvents[eventName]
+    let shouldProcessEvent: boolean
+    try {
+      shouldProcessEvent = !!config?.enabledEvents[eventName]
+    } catch {
+      return false
+    }
+
     return shouldProcessEvent
   }
 
-  protected abstract buildPayload(): PluginPayloadType
+  protected abstract buildPayload(context: Context): PluginPayloadType
 
-  protected abstract ignoreEventReason(payload: PluginPayloadType): string | undefined
+  protected abstract ignoreEventReason(
+    context: Context,
+    payload: PluginPayloadType,
+  ): string | undefined
 
-  protected abstract sendEvent(payload: PluginPayloadType): Promise<void>
+  protected abstract sendEvent(context: Context, payload: PluginPayloadType): Promise<void>
 
   protected getNormalizedEventName<T = UAPayload['en'] | TikTokPayload['event']>(
     sourceEventName: DataLayerEventName,

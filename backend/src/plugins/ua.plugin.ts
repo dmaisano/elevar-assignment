@@ -11,49 +11,43 @@ import { DestinationPlugin } from './base.plugin'
 export class UADestinationPlugin extends DestinationPlugin {
   config: UAEventsConnectorConfig
 
-  constructor(context: Context) {
-    super(context, 'UA')
+  constructor() {
+    super('ua')
   }
 
-  async processEvent(): Promise<void> {
-    if (!this.shouldProcessEvent()) {
-      console.log(`!shouldProcessEvent()`)
-      return
-    }
+  async processEvent(context: Context): Promise<void> {
+    if (!this.shouldProcessEvent(context)) return
 
-    const payload = this.buildPayload()
-    const ignorePayloadReason = this.ignoreEventReason(payload)
+    const payload = this.buildPayload(context)
+    const ignorePayloadReason = this.ignoreEventReason(context, payload)
     if (ignorePayloadReason) {
       console.log(`Ignoring UA Event: ${ignorePayloadReason}`)
       return
     }
 
-    await this.sendEvent(payload)
+    await this.sendEvent(context, payload)
   }
 
-  protected buildPayload(): UAPayload {
+  protected buildPayload(context: Context): UAPayload {
     const eventName = this.getNormalizedEventName<TikTokPayload['event']>(
-      this?.context?.message?.event_name,
+      context?.message?.event_name,
     )
     return {
-      cid: this.context?.message?.attributes?._ga,
-      uid: this.context?.message?.attributes?.user_id,
+      cid: context?.message?.attributes?._ga,
+      uid: context?.message?.attributes?.user_id,
       en: eventName,
       // ? Other event parameters would go here
     }
   }
 
-  protected ignoreEventReason(payload: UAPayload): string | undefined {
-    if (this.context?.config?.consentRequired && !this.context?.message?.attributes?.consentGranted)
+  protected ignoreEventReason(context: Context, payload: UAPayload): string | undefined {
+    if (context?.config?.consentRequired && !context?.message?.attributes?.consentGranted)
       return 'Consent not granted'
     if (!payload.uid && !payload.cid) return 'Missing user identifier'
   }
 
-  protected async sendEvent(payload: UAPayload): Promise<void> {
-    console.log(
-      `Sending event to UA for property ${this.context?.config?.ua?.measurementId}`,
-      payload,
-    )
+  protected async sendEvent(context: Context, payload: UAPayload): Promise<void> {
+    console.log(`Sending event to UA for property ${context?.config?.ua?.measurementId}`, payload)
   }
 
   protected eventMap: Partial<Record<DataLayerEventName, ConfigEventKey>> = {

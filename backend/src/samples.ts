@@ -50,7 +50,7 @@ export const sampleUaTikTokContext: Context = {
 export const disabledConsentContext = {
   ...sampleUaTikTokContext,
   message: {
-    event_name: 'dl_login',
+    event_name: 'dl_sign_up',
     attributes: {
       _ga: '7654321.7654321',
       user_id: 'user_321',
@@ -67,6 +67,10 @@ export const disabledConsentContext = {
       apiVersion: 'v1.3',
       pixelId: 'foobarbaz',
       testCode: '321',
+      enabledEvents: {
+        addToCart: true,
+        signUp: true,
+      },
     },
   },
 } as Context

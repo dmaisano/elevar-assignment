@@ -1,6 +1,9 @@
 import { Context } from '../starter'
 import { DestinationPlugin } from './base.plugin'
 
+export { TikTokDestinationPlugin } from './tiktok.plugin'
+export { UADestinationPlugin } from './ua.plugin'
+
 export class PluginManager {
   private plugins: DestinationPlugin[]
 

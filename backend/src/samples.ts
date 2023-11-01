@@ -47,7 +47,7 @@ export const sampleUaTikTokContext: Context = {
   },
 }
 
-export const disabledConsentContext = {
+export const invalidTiktokContext = {
   ...sampleUaTikTokContext,
   message: {
     event_name: 'dl_sign_up',
@@ -57,7 +57,7 @@ export const disabledConsentContext = {
     },
   },
   config: {
-    consentRequired: true,
+    consentRequired: false,
     ua: {
       measurementId: 'UA-65432-1',
     },

@@ -1,11 +1,12 @@
 import {
-  DataLayerEventName,
   ConfigEventKey,
   Context,
-  UAPayload,
+  DataLayerEventName,
+  TikTokPayload,
   UAEventsConnectorConfig,
+  UAPayload,
 } from '../starter'
-import { DestinationPlugin, PluginPayloadType } from './base.plugin'
+import { DestinationPlugin } from './base.plugin'
 
 export class UADestinationPlugin extends DestinationPlugin {
   config: UAEventsConnectorConfig
@@ -32,16 +33,20 @@ export class UADestinationPlugin extends DestinationPlugin {
     if (!isEnabled) return false
 
     const eventName = this.eventMap[this.context?.message?.event_name]
+    if (!eventName) return false
     const shouldProcessEvent = !!this.config?.[eventName]
 
     return shouldProcessEvent
   }
 
   protected buildPayload(): UAPayload {
+    const eventName = this.getNormalizedEventName<TikTokPayload['event']>(
+      this?.context?.message?.event_name,
+    )
     return {
       cid: this.context?.message?.attributes?._ga,
       uid: this.context?.message?.attributes?.user_id,
-      en: 'add_to_cart',
+      en: eventName,
       // ? Other event parameters would go here
     }
   }
@@ -49,17 +54,17 @@ export class UADestinationPlugin extends DestinationPlugin {
   protected ignoreEventReason(payload: UAPayload): string | undefined {
     if (this.context?.config?.consentRequired && !this.context?.message?.attributes?.consentGranted)
       return 'Consent not granted'
-    else if (!payload.uid && !payload.cid) return 'Missing user identifier'
+    if (!payload.uid && !payload.cid) return 'Missing user identifier'
   }
 
-  protected async sendEvent(payload: PluginPayloadType): Promise<void> {
+  protected async sendEvent(payload: UAPayload): Promise<void> {
     console.log(
       `Sending event to UA for property ${this.context?.config?.ua?.measurementId}`,
       payload,
     )
   }
 
-  protected eventMap: Record<DataLayerEventName, ConfigEventKey> = {
+  protected eventMap: Partial<Record<DataLayerEventName, ConfigEventKey>> = {
     dl_add_payment_info: 'addPaymentInfo',
     dl_add_shipping_info: 'addShippingInfo',
     dl_add_to_cart: 'addToCart',

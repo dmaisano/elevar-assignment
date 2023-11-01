@@ -1,8 +1,3 @@
-// ? custom type - https://stackoverflow.com/questions/53276792/define-a-list-of-optional-keys-for-typescript-record
-export type PartialRecord<K extends keyof any, T> = {
-  [P in K]?: T
-}
-
 export type DataLayerEventName =
   | 'dl_add_payment_info'
   | 'dl_add_shipping_info'

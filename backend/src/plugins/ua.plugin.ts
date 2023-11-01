@@ -16,7 +16,10 @@ export class UADestinationPlugin extends DestinationPlugin {
   }
 
   async processEvent(): Promise<void> {
-    if (!this.shouldProcessEvent()) return
+    if (!this.shouldProcessEvent()) {
+      console.log(`!shouldProcessEvent()`)
+      return
+    }
 
     const payload = this.buildPayload()
     const ignorePayloadReason = this.ignoreEventReason(payload)
@@ -26,17 +29,6 @@ export class UADestinationPlugin extends DestinationPlugin {
     }
 
     await this.sendEvent(payload)
-  }
-
-  protected shouldProcessEvent(): boolean {
-    const isEnabled = Boolean(this.config && this.config?.live && this.config?.measurementId)
-    if (!isEnabled) return false
-
-    const eventName = this.eventMap[this.context?.message?.event_name]
-    if (!eventName) return false
-    const shouldProcessEvent = !!this.config?.[eventName]
-
-    return shouldProcessEvent
   }
 
   protected buildPayload(): UAPayload {

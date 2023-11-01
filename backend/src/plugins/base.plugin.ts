@@ -2,7 +2,6 @@ import {
   ConfigEventKey,
   Context,
   DataLayerEventName,
-  PartialRecord,
   TikTokEventsConnectorConfig,
   TikTokPayload,
   UAEventsConnectorConfig,
@@ -32,7 +31,19 @@ export abstract class DestinationPlugin {
 
   abstract processEvent(): Promise<void>
 
-  protected abstract shouldProcessEvent(): boolean
+  protected shouldProcessEvent(): boolean {
+    const isEnabled = Boolean(this.config && this.config?.live)
+    if (!isEnabled) return false
+
+    if (this.pluginType === 'UA' && !(this.config as UAEventsConnectorConfig)?.measurementId)
+      return false
+
+    const eventName = this.eventMap[this.context?.message?.event_name]
+    if (!eventName) return false
+
+    const shouldProcessEvent = !!this.config?.enabledEvents[eventName]
+    return shouldProcessEvent
+  }
 
   protected abstract buildPayload(): PluginPayloadType
 

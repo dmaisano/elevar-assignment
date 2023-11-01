@@ -27,17 +27,6 @@ export class TikTokDestinationPlugin extends DestinationPlugin {
     await this.sendEvent(payload)
   }
 
-  protected shouldProcessEvent(): boolean {
-    const isEnabled = Boolean(this.config && this.config?.live)
-    if (!isEnabled) return false
-
-    const eventName = this.eventMap[this.context?.message?.event_name]
-    if (!eventName) return false
-    const shouldProcessEvent = !!this.config?.[eventName]
-
-    return shouldProcessEvent
-  }
-
   protected buildPayload(): TikTokPayload {
     const eventName = this.getNormalizedEventName<TikTokPayload['event']>(
       this?.context?.message?.event_name,

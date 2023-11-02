@@ -51,6 +51,7 @@ function App() {
         </Collapsible>
         <Sortable>
           <Tree nodes={data} />
+          {/* will break if nested inside div, did not complete the bonus task */}
         </Sortable>
       </div>
     </div>

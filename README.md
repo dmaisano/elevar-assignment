@@ -8,6 +8,8 @@ npm install
 npm run dev
 ```
 
+![Screenshot](screenshot.png)
+
 # Backend
 
 ```shell

@@ -2,6 +2,7 @@ import React from 'react'
 import './App.css'
 import Tree, { TreeNode } from './Tree'
 import Sortable from './Sortable'
+import Collapsible from './Collapsible'
 
 function App() {
   const data: TreeNode[] = [
@@ -44,9 +45,14 @@ function App() {
 
   return (
     <div className="app">
-      <Sortable>
-        <Tree nodes={data} />
-      </Sortable>
+      <div>
+        <Collapsible>
+          <Tree nodes={data} />
+        </Collapsible>
+        <Sortable>
+          <Tree nodes={data} />
+        </Sortable>
+      </div>
     </div>
   )
 }

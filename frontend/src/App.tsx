@@ -1,34 +1,52 @@
 import React from 'react'
 import './App.css'
-import Tree from './Tree'
+import Tree, { TreeNode } from './Tree'
+import Sortable from './Sortable'
 
 function App() {
-  const data = [
+  const data: TreeNode[] = [
     {
-      text: 'Folder 1',
+      text: 'Movies',
       children: [
         {
-          text: 'Sub Folder 1',
+          text: 'Horror',
           children: [
             {
-              text: 'Sub Sub Folder 1',
+              text: 'Halloween',
+            },
+            {
+              text: 'Alien',
             },
           ],
         },
         {
-          text: 'Sub Folder 2',
+          text: 'Action',
+          children: [
+            {
+              text: 'Stonecold',
+            },
+            {
+              text: 'Commando',
+            },
+          ],
         },
       ],
     },
     {
-      text: 'Folder 2',
-      children: [],
+      text: 'Books',
+      children: [
+        {
+          text: 'Children of time',
+        },
+      ],
     },
   ]
 
   return (
     <div className="app">
-      <Tree nodes={data} />
+      <Sortable>
+        <Tree nodes={data} />
+      </Sortable>
     </div>
   )
 }
